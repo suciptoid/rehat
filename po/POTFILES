@@ -1,0 +1,7 @@
+data/id.sucipto.rehat.desktop.in
+data/id.sucipto.rehat.appdata.xml.in
+data/id.sucipto.rehat.gschema.xml
+src/window.ui
+src/main.vala
+src/window.vala
+
