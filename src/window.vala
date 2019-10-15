@@ -23,11 +23,18 @@ namespace Rehat {
             METHOD
         }
 
+		private Gtk.TextView textarea;
+		private Gtk.Entry url_input;
+		private Gtk.ComboBox method;
+		private Soup.Session session;
+
 		public Window (Gtk.Application app) {
 			Object (application: app);
-		}
 
-		private Gtk.TextView textarea;
+			this.session = new Soup.Session();
+			this.session.user_agent = "Rehat/1.0";
+
+		}
 
 		construct {
 
@@ -58,8 +65,8 @@ namespace Rehat {
             var url_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL,0);
             url_box.homogeneous = false;
 
-            var method = new Gtk.ComboBox();
-            var url_input = new Gtk.Entry();
+            method = new Gtk.ComboBox();
+            url_input = new Gtk.Entry();
             var send_btn = new Gtk.Button.with_label("Send");
 
             // Text Area
@@ -102,20 +109,21 @@ namespace Rehat {
 		}
 
 		private void do_request() {
-		    var session = new Soup.Session();
-		    var message = new Soup.Message("GET","https://api.github.com/users/showcheap");
-		    var headers = new Soup.MessageHeaders(Soup.MessageHeadersType.REQUEST);
-		    headers.append("User-Agent","Rehat");
+            var url = url_input.buffer.get_text();
+            var method = http_methods[this.method.active];
 
-		    message.request_headers = headers;
+            print("%s : %s\n", method, url);
 
-		    session.send_message(message);
+            var message = new Soup.Message(method,url);
 
-		    //stdout.write(message.response_body.data);
-		    var buffer = new Gtk.TextBuffer(null);
-		    textarea.buffer = buffer;
-		    buffer.text = (string) message.response_body.data;
+            this.session.queue_message(message, (ses,msg) => {
+                var body = (string) msg.response_body.flatten().data;
+                print("Response\n%s\n",body);
 
+                var buffer = new Gtk.TextBuffer(null);
+		        textarea.buffer = buffer;
+		        buffer.text = body;
+            });
 		}
 	}
 }
