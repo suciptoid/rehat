@@ -70,9 +70,11 @@ namespace Rehat {
             var send_btn = new Gtk.Button.with_label("Send");
 
             // Text Area
+            var text_scrollbar = new Gtk.ScrolledWindow(null, null);
             textarea = new Gtk.TextView();
             textarea.set_wrap_mode(Gtk.WrapMode.WORD);
-            textarea.margin = 8;
+            text_scrollbar.margin = 8;
+            text_scrollbar.add(textarea);
 
             url_input.margin = 8;
             url_input.hexpand = true;
@@ -103,7 +105,7 @@ namespace Rehat {
             url_box.add(send_btn);
 
             content.add(url_box);
-            content.pack_end(textarea);
+            content.pack_end(text_scrollbar);
 
             send_btn.clicked.connect(this.do_request);
 		}
