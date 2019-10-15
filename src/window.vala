@@ -120,9 +120,29 @@ namespace Rehat {
                 var body = (string) msg.response_body.flatten().data;
                 print("Response\n%s\n",body);
 
+
+                print("Headers:\n");
+		        msg.response_headers.foreach((name,val) => {
+		            print("%s: %s\n", name,val);
+		        });
+
+		        // Parse & Format JSON
+		        var parser = new Json.Parser();
+		        var generator = new Json.Generator();
+
+		        parser.load_from_data(body);
+
+		        generator.set_root(parser.get_root());
+		        generator.pretty = true;
+
+		        var formatted = generator.to_data(null);
+
+		        print(formatted);
+
                 var buffer = new Gtk.TextBuffer(null);
 		        textarea.buffer = buffer;
-		        buffer.text = body;
+		        buffer.text = formatted;
+
             });
 		}
 	}
