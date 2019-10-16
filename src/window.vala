@@ -18,14 +18,10 @@
 
 namespace Rehat {
 	public class Window : Gtk.ApplicationWindow {
-	    string[] http_methods = {"GET","POST","DELETE","PATCH","PUT"};
-        enum Column {
-            METHOD
-        }
 
 		private Gtk.SourceView textarea;
 		private Gtk.Entry url_input;
-		private Gtk.ComboBox method;
+		private Widget.DropDown method;
 		private Soup.Session session;
 
 		public Window (Gtk.Application app) {
@@ -39,14 +35,13 @@ namespace Rehat {
 		construct {
 
 		    // Header
-		    var headerbar = new Gtk.HeaderBar();
-            headerbar.show_close_button = true;
-            headerbar.title = "Rehat! - REST Client";
+		    var headerbar = new Widget.Header();
+		    this.set_titlebar(headerbar);
 
+            // Window
             this.default_width = 1000;
             this.default_height = 500;
             this.window_position = Gtk.WindowPosition.CENTER;
-		    this.set_titlebar(headerbar);
 
 		    // Content Main
             var main_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL,0);
@@ -65,18 +60,22 @@ namespace Rehat {
             var url_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL,0);
             url_box.homogeneous = false;
 
-            method = new Gtk.ComboBox();
+            method = new Widget.DropDown();
+            method.set_active(0);
+            method.margin = 8;
+            method.hexpand = false;
+
             url_input = new Gtk.Entry();
             var send_btn = new Gtk.Button.with_label("Send");
 
             // Text Area
-            var text_scrollbar = new Gtk.ScrolledWindow(null, null);
             textarea = new Gtk.SourceView();
             textarea.set_wrap_mode(Gtk.WrapMode.WORD);
             textarea.auto_indent = true;
             textarea.highlight_current_line = false;
             textarea.editable = false;
 
+            var text_scrollbar = new Gtk.ScrolledWindow(null, null);
             text_scrollbar.margin = 8;
             text_scrollbar.add(textarea);
 
@@ -84,25 +83,9 @@ namespace Rehat {
             url_input.hexpand = true;
             url_input.text = "https://api.github.com/users/showcheap";
 
-            method.margin = 8;
-            method.hexpand = false;
             send_btn.margin = 8;
-
             send_btn.get_style_context().add_class("suggested-action");
-
-            var method_store = new Gtk.ListStore(1, typeof(string));
-            for (int i = 0; i<http_methods.length; i++) {
-                Gtk.TreeIter iter;
-                method_store.append(out iter);
-                method_store.set(iter, Column.METHOD, http_methods[i]);
-            }
-
-            method.model = method_store;
-            method.set_active(0);
-
-            var cell = new Gtk.CellRendererText();
-            method.pack_start(cell,false);
-            method.set_attributes(cell,"text",Column.METHOD);
+            send_btn.clicked.connect(this.do_request);
 
             url_box.add(method);
             url_box.add(url_input);
@@ -110,13 +93,11 @@ namespace Rehat {
 
             content.add(url_box);
             content.pack_end(text_scrollbar);
-
-            send_btn.clicked.connect(this.do_request);
 		}
 
 		private void do_request() {
             var url = url_input.buffer.get_text();
-            var method = http_methods[this.method.active];
+            var method = this.method.get_method();
 
             print("%s : %s\n", method, url);
 

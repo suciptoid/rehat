@@ -1,6 +1,8 @@
 rehat_sources = [
   'application.vala',
   'window.vala',
+  'widget/dropdown.vala',
+  'widget/headerbar.vala',
 ]
 
 rehat_deps = [
