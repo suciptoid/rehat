@@ -3,7 +3,7 @@ Version:        0.1.0
 Release:        1%{?dist}
 Summary:        Simple GTK Rest Client
 
-License:        MIT
+License:        GPL-3.0
 URL:            https://github.com/showcheap/rehat
 Source0:        https://github.com/showcheap/rehat/archive/%{version}.tar.gz
 
