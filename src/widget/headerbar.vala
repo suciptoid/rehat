@@ -1,4 +1,4 @@
-/* application.vala
+/* headerbar.vala
  *
  * Copyright 2019 Sucipto <hi@sucipto.id>
  *
@@ -18,25 +18,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-
-namespace Rehat {
-    public class Application : Gtk.Application {
-        public Application () {
-            Object(
-                application_id: "id.sucipto.rehat",
-                flags: ApplicationFlags.FLAGS_NONE
-            );
-        }
-
-        protected override void activate() {
-            var window = new Window(this);
-
-            window.show_all();
-        }
-
-        public static int main(string[] args) {
-            var app = new Application();
-            return app.run(args);
+namespace Rehat.Widget {
+    public class Header : Gtk.HeaderBar {
+        construct {
+            this.show_close_button = true;
+            this.title = "Rehat!";
         }
     }
 }

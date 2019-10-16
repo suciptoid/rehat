@@ -18,15 +18,10 @@
 
 namespace Rehat {
 	public class Window : Gtk.ApplicationWindow {
-	    string[] http_methods = {"GET","POST","DELETE","PATCH","PUT"};
-        enum Column {
-            METHOD
-        }
 
 		private Gtk.SourceView textarea;
-		private Gtk.Entry url_input;
-		private Gtk.ComboBox method;
 		private Soup.Session session;
+		private Widget.UrlBar urlbar;
 
 		public Window (Gtk.Application app) {
 			Object (application: app);
@@ -39,14 +34,13 @@ namespace Rehat {
 		construct {
 
 		    // Header
-		    var headerbar = new Gtk.HeaderBar();
-            headerbar.show_close_button = true;
-            headerbar.title = "Rehat! - REST Client";
+		    var headerbar = new Widget.Header();
+		    this.set_titlebar(headerbar);
 
+            // Window
             this.default_width = 1000;
             this.default_height = 500;
             this.window_position = Gtk.WindowPosition.CENTER;
-		    this.set_titlebar(headerbar);
 
 		    // Content Main
             var main_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL,0);
@@ -57,66 +51,38 @@ namespace Rehat {
             //main_box.pack_start(sidebar);
             sidebar.add(new Gtk.Label("Sidebar"));
 
+            // Stack Content
+            var stack = new Gtk.Stack();
+
             // Content
             var content = new Gtk.Box(Gtk.Orientation.VERTICAL,0);
-            main_box.pack_end(content);
+            stack.add_named(content,"response");
 
-            // Addressbar
-            var url_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL,0);
-            url_box.homogeneous = false;
-
-            method = new Gtk.ComboBox();
-            url_input = new Gtk.Entry();
-            var send_btn = new Gtk.Button.with_label("Send");
+            main_box.pack_end(stack);
 
             // Text Area
-            var text_scrollbar = new Gtk.ScrolledWindow(null, null);
             textarea = new Gtk.SourceView();
             textarea.set_wrap_mode(Gtk.WrapMode.WORD);
             textarea.auto_indent = true;
             textarea.highlight_current_line = false;
             textarea.editable = false;
 
+            var text_scrollbar = new Gtk.ScrolledWindow(null, null);
             text_scrollbar.margin = 8;
             text_scrollbar.add(textarea);
 
-            url_input.margin = 8;
-            url_input.hexpand = true;
-            url_input.text = "https://api.github.com/users/showcheap";
+            urlbar = new Widget.UrlBar();
+            urlbar.send.connect((str) => {
+                this.do_request();
+            });
 
-            method.margin = 8;
-            method.hexpand = false;
-            send_btn.margin = 8;
-
-            send_btn.get_style_context().add_class("suggested-action");
-
-            var method_store = new Gtk.ListStore(1, typeof(string));
-            for (int i = 0; i<http_methods.length; i++) {
-                Gtk.TreeIter iter;
-                method_store.append(out iter);
-                method_store.set(iter, Column.METHOD, http_methods[i]);
-            }
-
-            method.model = method_store;
-            method.set_active(0);
-
-            var cell = new Gtk.CellRendererText();
-            method.pack_start(cell,false);
-            method.set_attributes(cell,"text",Column.METHOD);
-
-            url_box.add(method);
-            url_box.add(url_input);
-            url_box.add(send_btn);
-
-            content.add(url_box);
+            content.add(urlbar);
             content.pack_end(text_scrollbar);
-
-            send_btn.clicked.connect(this.do_request);
 		}
 
 		private void do_request() {
-            var url = url_input.buffer.get_text();
-            var method = http_methods[this.method.active];
+            var url = urlbar.url;
+            var method = urlbar.method;
 
             print("%s : %s\n", method, url);
 
@@ -125,7 +91,6 @@ namespace Rehat {
             this.session.queue_message(message, (ses,msg) => {
                 var body = (string) msg.response_body.flatten().data;
                 print("Response\n%s\n",body);
-
 
                 print("Headers:\n");
 		        msg.response_headers.foreach((name,val) => {

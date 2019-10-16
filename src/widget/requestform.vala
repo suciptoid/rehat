@@ -1,4 +1,4 @@
-/* application.vala
+/* requestform.vala
  *
  * Copyright 2019 Sucipto <hi@sucipto.id>
  *
@@ -18,25 +18,26 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+namespace Rehat.Widget {
+    public class RequestForm : Gtk.Popover {
+        construct {
+            var vbox_pop = new Gtk.Box(Gtk.Orientation.VERTICAL,0);
+            vbox_pop.margin = 4;
 
-namespace Rehat {
-    public class Application : Gtk.Application {
-        public Application () {
-            Object(
-                application_id: "id.sucipto.rehat",
-                flags: ApplicationFlags.FLAGS_NONE
-            );
-        }
+            // Stack
+            var stack = new Gtk.Stack();
+            var stack_switcher = new Gtk.StackSwitcher();
+            stack_switcher.stack = stack;
 
-        protected override void activate() {
-            var window = new Window(this);
+            stack.add_titled(new Gtk.Label("Stack1"), "body", "Body");
+            stack.add_titled(new Gtk.Label("Stack2"), "headers", "Headers");
 
-            window.show_all();
-        }
+            vbox_pop.add(stack_switcher);
+            vbox_pop.add(stack);
 
-        public static int main(string[] args) {
-            var app = new Application();
-            return app.run(args);
+            this.add(vbox_pop);
+            this.position = Gtk.PositionType.BOTTOM;
+            this.modal = false;
         }
     }
 }
