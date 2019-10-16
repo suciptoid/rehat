@@ -8,6 +8,7 @@ rehat_deps = [
   dependency('gtk+-3.0', version: '>= 3.22'),
   dependency('libsoup-2.4'),
   dependency('json-glib-1.0'),
+  dependency('gtksourceview-4'),
 ]
 
 gnome = import('gnome')
