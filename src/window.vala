@@ -20,9 +20,8 @@ namespace Rehat {
 	public class Window : Gtk.ApplicationWindow {
 
 		private Gtk.SourceView textarea;
-		private Gtk.Entry url_input;
-		private Widget.DropDown method;
 		private Soup.Session session;
+		private Widget.UrlBar urlbar;
 
 		public Window (Gtk.Application app) {
 			Object (application: app);
@@ -52,21 +51,14 @@ namespace Rehat {
             //main_box.pack_start(sidebar);
             sidebar.add(new Gtk.Label("Sidebar"));
 
+            // Stack Content
+            var stack = new Gtk.Stack();
+
             // Content
             var content = new Gtk.Box(Gtk.Orientation.VERTICAL,0);
-            main_box.pack_end(content);
+            stack.add_named(content,"response");
 
-            // Addressbar
-            var url_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL,0);
-            url_box.homogeneous = false;
-
-            method = new Widget.DropDown();
-            method.set_active(0);
-            method.margin = 8;
-            method.hexpand = false;
-
-            url_input = new Gtk.Entry();
-            var send_btn = new Gtk.Button.with_label("Send");
+            main_box.pack_end(stack);
 
             // Text Area
             textarea = new Gtk.SourceView();
@@ -79,25 +71,18 @@ namespace Rehat {
             text_scrollbar.margin = 8;
             text_scrollbar.add(textarea);
 
-            url_input.margin = 8;
-            url_input.hexpand = true;
-            url_input.text = "https://api.github.com/users/showcheap";
+            urlbar = new Widget.UrlBar();
+            urlbar.send.connect((str) => {
+                this.do_request();
+            });
 
-            send_btn.margin = 8;
-            send_btn.get_style_context().add_class("suggested-action");
-            send_btn.clicked.connect(this.do_request);
-
-            url_box.add(method);
-            url_box.add(url_input);
-            url_box.add(send_btn);
-
-            content.add(url_box);
+            content.add(urlbar);
             content.pack_end(text_scrollbar);
 		}
 
 		private void do_request() {
-            var url = url_input.buffer.get_text();
-            var method = this.method.get_method();
+            var url = urlbar.url;
+            var method = urlbar.method;
 
             print("%s : %s\n", method, url);
 
@@ -106,7 +91,6 @@ namespace Rehat {
             this.session.queue_message(message, (ses,msg) => {
                 var body = (string) msg.response_body.flatten().data;
                 print("Response\n%s\n",body);
-
 
                 print("Headers:\n");
 		        msg.response_headers.foreach((name,val) => {
