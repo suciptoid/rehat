@@ -1,7 +1,7 @@
 Name:           rehat
 Version:        0.1.0
 Release:        1%{?dist}
-Summary:        USB Audio
+Summary:        Simple GTK Rest Client
 
 License:        MIT
 URL:            https://github.com/showcheap/rehat
