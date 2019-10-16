@@ -23,7 +23,7 @@ namespace Rehat {
             METHOD
         }
 
-		private Gtk.TextView textarea;
+		private Gtk.SourceView textarea;
 		private Gtk.Entry url_input;
 		private Gtk.ComboBox method;
 		private Soup.Session session;
@@ -71,8 +71,12 @@ namespace Rehat {
 
             // Text Area
             var text_scrollbar = new Gtk.ScrolledWindow(null, null);
-            textarea = new Gtk.TextView();
+            textarea = new Gtk.SourceView();
             textarea.set_wrap_mode(Gtk.WrapMode.WORD);
+            textarea.auto_indent = true;
+            textarea.highlight_current_line = false;
+            textarea.editable = false;
+
             text_scrollbar.margin = 8;
             text_scrollbar.add(textarea);
 
@@ -128,23 +132,44 @@ namespace Rehat {
 		            print("%s: %s\n", name,val);
 		        });
 
-		        // Parse & Format JSON
-		        var parser = new Json.Parser();
-		        var generator = new Json.Generator();
+                var lang_mgr = new Gtk.SourceLanguageManager();
+                HashTable ct;
+                var content_type = msg.response_headers.get_content_type(out ct);
 
-		        parser.load_from_data(body);
+                //print("Content type: %s\n", content_type);
+                var lang = lang_mgr.guess_language(null,content_type);
 
-		        generator.set_root(parser.get_root());
-		        generator.pretty = true;
-
-		        var formatted = generator.to_data(null);
-
-		        print(formatted);
-
-                var buffer = new Gtk.TextBuffer(null);
+                var buffer = new Gtk.SourceBuffer.with_language(lang);
+                buffer.highlight_syntax = true;
 		        textarea.buffer = buffer;
-		        buffer.text = formatted;
 
+		        // Textarea Color Scheme
+		        var scheme_mgr = new Gtk.SourceStyleSchemeManager();
+
+		        buffer.style_scheme = scheme_mgr.get_scheme("kate");
+
+                if (content_type == "application/json") {
+		            // Parse & Format JSON
+		            var parser = new Json.Parser();
+		            var generator = new Json.Generator();
+
+                    try {
+		                parser.load_from_data(body);
+                    } catch (Error e) {
+                        print("JSON Generator error load data: %s\n", e.message);
+                    }
+
+		            generator.set_root(parser.get_root());
+		            generator.pretty = true;
+		            generator.indent = 4;
+
+		            var formatted = generator.to_data(null);
+
+		            print(formatted);
+		            buffer.text = formatted;
+		        } else {
+		            buffer.text = body;
+		        }
             });
 		}
 	}
