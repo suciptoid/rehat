@@ -50,8 +50,7 @@ namespace Rehat.Widget {
             url_entry.hexpand = true;
             url_entry.margin_end = 4;
             url_entry.margin_start = 4;
-            // TODO: remove this
-            url_entry.text = "https://api.github.com/users/showcheap";
+            url_entry.placeholder_text = "http://example.com/api";
             url_entry.changed.connect(() => {
                 print("URL Entry changed %s\n", url_entry.text);
                 this.url = url_entry.text;
