@@ -20,6 +20,8 @@
 
 namespace Rehat.Widget {
     public class RequestForm : Gtk.Popover {
+        public string body { get; set; }
+
         construct {
             var vbox_pop = new Gtk.Box(Gtk.Orientation.VERTICAL,0);
             vbox_pop.margin = 4;
@@ -29,7 +31,42 @@ namespace Rehat.Widget {
             var stack_switcher = new Gtk.StackSwitcher();
             stack_switcher.stack = stack;
 
-            stack.add_titled(new Gtk.Label("Stack1"), "body", "Body");
+            // Request Body
+            var body_box = new Gtk.Box(Gtk.Orientation.VERTICAL,0);
+
+            // Body Type Select
+            var body_select = new Gtk.ComboBoxText();
+            body_select.margin_top = 4;
+            body_select.margin_bottom = 4;
+
+            string[] body_type = {"JSON (WIP)","Form Data (WIP)"};
+            for (int i = 0; i <= body_type.length; i++) {
+                body_select.insert_text(i, body_type[i]);
+            }
+            body_select.set_active(0);
+
+            // Body Text/JSON View
+            var body_text = new Gtk.SourceView();
+
+            var body_scroll = new Gtk.ScrolledWindow(null, null);
+            body_scroll.add(body_text);
+            body_scroll.height_request = 300;
+
+            // Buffer
+            var text_buff = new Gtk.SourceBuffer(null);
+            body_text.buffer = text_buff;
+
+            var scheme = new Gtk.SourceStyleSchemeManager();
+            text_buff.style_scheme = scheme.get_scheme("builder");
+            text_buff.changed.connect(() => {
+                print("RequestForm:body:changed:%s\n", text_buff.text);
+                this.body = text_buff.text;
+            });
+
+            body_box.add(body_select);
+            body_box.add(body_scroll);
+
+            stack.add_titled(body_box, "body", "Body");
             stack.add_titled(new Gtk.Label("Stack2"), "headers", "Headers");
 
             vbox_pop.add(stack_switcher);
@@ -37,7 +74,8 @@ namespace Rehat.Widget {
 
             this.add(vbox_pop);
             this.position = Gtk.PositionType.BOTTOM;
-            this.modal = false;
+            this.modal = true;
+            this.width_request = 600;
         }
     }
 }
