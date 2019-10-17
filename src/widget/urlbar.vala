@@ -24,7 +24,7 @@ namespace Rehat.Widget {
         Gtk.Button send_button;
         Gtk.ToggleButton pop_button;
         Widget.DropDown method_dropdown;
-        Gtk.Popover popover;
+        Widget.RequestForm popover;
 
         // Signals
         public signal void send(string str);
@@ -32,6 +32,8 @@ namespace Rehat.Widget {
         // Properties
         public string method { get; set; }
         public string url { get; set; }
+        public string body { get; set; }
+        public string headers { get; set; }
 
         public UrlBar() {
             Object(
@@ -48,8 +50,7 @@ namespace Rehat.Widget {
             url_entry.hexpand = true;
             url_entry.margin_end = 4;
             url_entry.margin_start = 4;
-            // TODO: remove this
-            url_entry.text = "https://api.github.com/users/showcheap";
+            url_entry.placeholder_text = "http://example.com/api";
             url_entry.changed.connect(() => {
                 print("URL Entry changed %s\n", url_entry.text);
                 this.url = url_entry.text;
@@ -71,6 +72,10 @@ namespace Rehat.Widget {
             // Popover menu
             popover = new Widget.RequestForm();
             popover.set_relative_to(pop_button);
+            popover.closed.connect(() => {
+                print("Popover closed\n");
+                pop_button.active = false;
+            });
 
             // HTTP Method Dropdown
             method_dropdown = new Widget.DropDown();
@@ -95,7 +100,17 @@ namespace Rehat.Widget {
         }
 
         private void on_send_click() {
+            print("Request body: %s\n", this.popover.body);
             this.send("send from signal: %s\n".printf(this.url_entry.text));
+        }
+
+        public Soup.Message get_message() {
+            var message = new Soup.Message(this.method, this.url);
+
+            if(this.method == "POST") {
+                message.set_request("application/json",Soup.MemoryUse.COPY, this.popover.body.data);
+            }
+            return message;
         }
 
     }

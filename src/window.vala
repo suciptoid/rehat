@@ -86,8 +86,7 @@ namespace Rehat {
 
             print("%s : %s\n", method, url);
 
-            var message = new Soup.Message(method,url);
-
+            var message = urlbar.get_message();//new Soup.Message(method,url);
             this.session.queue_message(message, (ses,msg) => {
                 var body = (string) msg.response_body.flatten().data;
                 print("Response\n%s\n",body);
@@ -111,7 +110,7 @@ namespace Rehat {
 		        // Textarea Color Scheme
 		        var scheme_mgr = new Gtk.SourceStyleSchemeManager();
 
-		        buffer.style_scheme = scheme_mgr.get_scheme("kate");
+		        buffer.style_scheme = scheme_mgr.get_scheme("builder");
 
                 if (content_type == "application/json") {
 		            // Parse & Format JSON
