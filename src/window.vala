@@ -72,7 +72,7 @@ namespace Rehat {
             text_scrollbar.add(textarea);
 
             urlbar = new Widget.UrlBar();
-            urlbar.send.connect((str) => {
+            urlbar.send.connect(() => {
                 this.do_request();
             });
 

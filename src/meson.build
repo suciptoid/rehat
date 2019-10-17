@@ -5,6 +5,7 @@ rehat_sources = [
   'widget/headerbar.vala',
   'widget/urlbar.vala',
   'widget/requestform.vala',
+  'widget/headerinput.vala',
 ]
 
 rehat_deps = [
