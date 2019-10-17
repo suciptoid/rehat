@@ -1,13 +1,13 @@
 {
     "app-id": "id.sucipto.rehat",
     "runtime": "org.gnome.Platform",
-    "runtime-version": "3.32",
+    "runtime-version": "3.34",
     "sdk": "org.gnome.Sdk",
     "command": "rehat",
     "finish-args": [
         "--share=network",
         "--share=ipc",
-        "--socket=fallback-x11",
+        "--socket=x11",
         "--socket=wayland",
         "--filesystem=xdg-run/dconf",
         "--filesystem=~/.config/dconf:ro",
@@ -28,13 +28,24 @@
     ],
     "modules": [
         {
+            "name": "gtksourceview-4",
+            "buildsystem": "meson",
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "http://ftp.gnome.org/pub/gnome/sources/gtksourceview/4.4/gtksourceview-4.4.0.tar.xz",
+                    "sha256": "9ddb914aef70a29a66acd93b4f762d5681202e44094d2d6370e51c9e389e689a"
+                }
+            ]
+        },
+        {
             "name": "rehat",
             "builddir": true,
             "buildsystem": "meson",
             "sources": [
                 {
                     "type": "git",
-                    "url": "file:///home/sucipto/Code/Rehat"
+                    "url": "https://github.com/showcheap/rehat"
                 }
             ]
         }
