@@ -27,7 +27,7 @@ namespace Rehat.Widget {
         Widget.RequestForm popover;
 
         // Signals
-        public signal void send(string str);
+        public signal void send();
 
         // Properties
         public string method { get; set; }
@@ -100,14 +100,13 @@ namespace Rehat.Widget {
         }
 
         private void on_send_click() {
-            print("Request body: %s\n", this.popover.body);
-            this.send("send from signal: %s\n".printf(this.url_entry.text));
+            this.send();
         }
 
         public Soup.Message get_message() {
             var message = new Soup.Message(this.method, this.url);
 
-            if(this.method == "POST") {
+            if(this.method == "POST" || this.method == "PUT" || this.method == "PATCH") {
                 message.set_request("application/json",Soup.MemoryUse.COPY, this.popover.body.data);
             }
             return message;

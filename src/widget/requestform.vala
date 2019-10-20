@@ -21,8 +21,12 @@
 namespace Rehat.Widget {
     public class RequestForm : Gtk.Popover {
         public string body { get; set; }
+        private HashTable<string,string> headers = new HashTable<string,string>(str_hash, str_equal);
 
         construct {
+            headers.insert("Content","val");
+            headers.insert("Content2","val");
+            headers.insert("Content3","val");
             var vbox_pop = new Gtk.Box(Gtk.Orientation.VERTICAL,0);
             vbox_pop.margin = 4;
 
@@ -39,7 +43,7 @@ namespace Rehat.Widget {
             body_select.margin_top = 4;
             body_select.margin_bottom = 4;
 
-            string[] body_type = {"JSON (WIP)","Form Data (WIP)"};
+            string[] body_type = {"JSON","Text / Raw", "Form Data", "Multipart From"};
             for (int i = 0; i <= body_type.length; i++) {
                 body_select.insert_text(i, body_type[i]);
             }
@@ -67,7 +71,20 @@ namespace Rehat.Widget {
             body_box.add(body_scroll);
 
             stack.add_titled(body_box, "body", "Body");
-            stack.add_titled(new Gtk.Label("Stack2"), "headers", "Headers");
+
+            var header_box = new Gtk.Box(Gtk.Orientation.VERTICAL,0);
+            header_box.margin_top = 8;
+
+            this.headers.foreach((k,v) => {
+                var header_input = new Widget.HeaderInput();
+                header_input.margin_bottom = 4;
+                header_input.delete_header.connect(() => {
+                    header_input.destroy();
+                });
+                header_box.add(header_input);
+            });
+
+            stack.add_titled(header_box, "headers", "Headers");
 
             vbox_pop.add(stack_switcher);
             vbox_pop.add(stack);
