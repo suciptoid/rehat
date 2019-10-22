@@ -23,6 +23,9 @@ namespace Rehat {
 		private Soup.Session session;
 		private Widget.UrlBar urlbar;
 
+		private Widget.Request request;
+		private Widget.Response response;
+
 		public Window (Gtk.Application app) {
 			Object (application: app);
 
@@ -36,6 +39,10 @@ namespace Rehat {
 		    // Header
 		    var headerbar = new Widget.Header();
 		    this.set_titlebar(headerbar);
+		    headerbar.pack_end(new Gtk.Button.from_icon_name("open-menu-symbolic", Gtk.IconSize.BUTTON));
+
+		    // Req/Res Tab switcher
+		    var tab_switch = new Gtk.StackSwitcher();
 
             // Window
             this.default_width = 1000;
@@ -43,20 +50,35 @@ namespace Rehat {
             this.window_position = Gtk.WindowPosition.CENTER;
 
 		    // Content Main
+		    var main_pane = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
             var main_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL,0);
-            this.add(main_box);
+            //this.add(main_box);
+            this.add(main_pane);
+            main_pane.add2(main_box);
 
             // Sidebar
             var sidebar = new Gtk.Box(Gtk.Orientation.VERTICAL,0);
             //main_box.pack_start(sidebar);
             sidebar.add(new Gtk.Label("Sidebar"));
+            sidebar.set_size_request(300,-1);
+            main_pane.add1(sidebar);
 
             // Stack Content
             var stack = new Gtk.Stack();
+            //main_pane.add2(stack);
+            tab_switch.stack = stack;
+		    headerbar.custom_title = tab_switch;
 
             // Content
             var content = new Gtk.Box(Gtk.Orientation.VERTICAL,0);
-            stack.add_named(content,"response");
+
+            // Tab Request
+            request = new Widget.Request();
+            stack.add_titled(request,"request","Request");
+
+            // Tab Response
+            response = new Widget.Response();
+            stack.add_titled(response,"response","Response");
 
             main_box.pack_end(stack);
 
@@ -76,7 +98,7 @@ namespace Rehat {
                 this.do_request();
             });
 
-            content.add(urlbar);
+            //content.add(urlbar);
             content.pack_end(text_scrollbar);
 		}
 
@@ -110,7 +132,7 @@ namespace Rehat {
 		        // Textarea Color Scheme
 		        var scheme_mgr = new Gtk.SourceStyleSchemeManager();
 
-		        buffer.style_scheme = scheme_mgr.get_scheme("builder");
+		        buffer.style_scheme = scheme_mgr.get_scheme("kate");
 
                 if (content_type == "application/json") {
 		            // Parse & Format JSON

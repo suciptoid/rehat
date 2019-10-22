@@ -48,8 +48,8 @@ namespace Rehat.Widget {
             // URL Entry
             url_entry = new Gtk.Entry();
             url_entry.hexpand = true;
-            url_entry.margin_end = 4;
-            url_entry.margin_start = 4;
+            //url_entry.margin_end = 4;
+            //url_entry.margin_start = 4;
             url_entry.placeholder_text = "http://example.com/api";
             url_entry.changed.connect(() => {
                 print("URL Entry changed %s\n", url_entry.text);
@@ -91,12 +91,13 @@ namespace Rehat.Widget {
 
             this.margin = 8;
             this.add(method_dropdown);
-            this.add(pop_button);
+            //this.add(pop_button);
             this.add(url_entry);
             this.add(send_button);
 
             this.url = url_entry.text;
             this.method = method_dropdown.get_method();
+            this.get_style_context().add_class("linked");
         }
 
         private void on_send_click() {
