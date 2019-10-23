@@ -26,6 +26,8 @@ namespace Rehat {
 		private Widget.Request request;
 		private Widget.Response response;
 
+		private Gtk.Stack content_stack;
+
 		public Window (Gtk.Application app) {
 			Object (application: app);
 
@@ -40,9 +42,11 @@ namespace Rehat {
 		    var headerbar = new Widget.Header();
 		    this.set_titlebar(headerbar);
 		    headerbar.pack_end(new Gtk.Button.from_icon_name("open-menu-symbolic", Gtk.IconSize.BUTTON));
+		    headerbar.pack_start(new Gtk.Button.from_icon_name("list-add-symbolic", Gtk.IconSize.BUTTON));
 
 		    // Req/Res Tab switcher
 		    var tab_switch = new Gtk.StackSwitcher();
+		    headerbar.custom_title = tab_switch;
 
             // Window
             this.default_width = 1000;
@@ -52,63 +56,54 @@ namespace Rehat {
 		    // Content Main
 		    var main_pane = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
             var main_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL,0);
-            //this.add(main_box);
-            this.add(main_pane);
-            main_pane.add2(main_box);
 
             // Sidebar
             var sidebar = new Gtk.Box(Gtk.Orientation.VERTICAL,0);
-            //main_box.pack_start(sidebar);
             sidebar.add(new Gtk.Label("Sidebar"));
             sidebar.set_size_request(300,-1);
-            main_pane.add1(sidebar);
 
             // Stack Content
-            var stack = new Gtk.Stack();
-            //main_pane.add2(stack);
-            tab_switch.stack = stack;
-		    headerbar.custom_title = tab_switch;
-
-            // Content
-            var content = new Gtk.Box(Gtk.Orientation.VERTICAL,0);
+            content_stack = new Gtk.Stack();
+            tab_switch.stack = content_stack;
 
             // Tab Request
             request = new Widget.Request();
-            stack.add_titled(request,"request","Request");
+            content_stack.add_titled(request,"request","Request");
 
             // Tab Response
             response = new Widget.Response();
-            stack.add_titled(response,"response","Response");
+            content_stack.add_titled(response,"response","Response");
 
-            main_box.pack_end(stack);
 
             // Text Area
-            textarea = new Gtk.SourceView();
-            textarea.set_wrap_mode(Gtk.WrapMode.WORD);
-            textarea.auto_indent = true;
-            textarea.highlight_current_line = false;
-            textarea.editable = false;
+            //textarea = new Gtk.SourceView();
+            //textarea.set_wrap_mode(Gtk.WrapMode.WORD);
+            //textarea.auto_indent = true;
+            //textarea.highlight_current_line = false;
+            //textarea.editable = false;
 
-            var text_scrollbar = new Gtk.ScrolledWindow(null, null);
-            text_scrollbar.margin = 8;
-            text_scrollbar.add(textarea);
+            //var text_scrollbar = new Gtk.ScrolledWindow(null, null);
+            //text_scrollbar.margin = 8;
+            //text_scrollbar.add(textarea);
 
-            urlbar = new Widget.UrlBar();
-            urlbar.send.connect(() => {
+            //urlbar = new Widget.UrlBar();
+            request.urlbar.send.connect(() => {
                 this.do_request();
             });
 
-            //content.add(urlbar);
-            content.pack_end(text_scrollbar);
+            this.add(main_pane);
+            main_pane.add1(sidebar);
+            main_pane.add2(main_box);
+            main_box.pack_end(content_stack);
 		}
 
 		private void do_request() {
-            var url = urlbar.url;
-            var method = urlbar.method;
+            var url = request.urlbar.url;
+            var method = request.urlbar.method;
 
             print("%s : %s\n", method, url);
 
-            var message = urlbar.get_message();//new Soup.Message(method,url);
+            var message = request.urlbar.get_message();//new Soup.Message(method,url);
             this.session.queue_message(message, (ses,msg) => {
                 var body = (string) msg.response_body.flatten().data;
                 print("Response\n%s\n",body);
