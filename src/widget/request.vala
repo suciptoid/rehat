@@ -21,6 +21,7 @@
 namespace Rehat.Widget {
     public class Request : Gtk.Box {
         public Widget.UrlBar urlbar;
+        public string body;
 
         public Request(){
             Object(
@@ -44,20 +45,23 @@ namespace Rehat.Widget {
             //body_type.append_text("Form Data");
             //body_type.append_text("Multipart");
             body_type.append_text("JSON");
+            body_type.append_text("Form Data");
             body_type.set_active(0);
 
             tab_box.add(body_type);
+            tab_box.add(new Gtk.Button.with_label("Query"));
             tab_box.add(new Gtk.Button.with_label("Header"));
 
             // Body Stack
             var stack = new Gtk.Stack();
             stack.vexpand = true;
-            stack.margin = 8;
+            //stack.margin = 8;
 
             var body_stack_content = new Gtk.ScrolledWindow(null,null);
             var body_type_text = new Gtk.SourceView();
             body_type_text.set_wrap_mode(Gtk.WrapMode.WORD);
             body_type_text.auto_indent = true;
+            body_type_text.show_line_numbers = true;
 
             body_stack_content.add(body_type_text);
             stack.add_named(body_stack_content,"body_text");
@@ -66,12 +70,17 @@ namespace Rehat.Widget {
             var lang_mgr = new Gtk.SourceLanguageManager();
             var body_text_buff = new Gtk.SourceBuffer.with_language(lang_mgr.get_language("json"));
             body_text_buff.highlight_syntax = true;
+            body_text_buff.highlight_matching_brackets = false;
             body_text_buff.style_scheme = (new Gtk.SourceStyleSchemeManager()).get_scheme("kate");
             body_type_text.buffer = body_text_buff;
 
+            body_text_buff.changed.connect(() => {
+                print("Request body changed: %s\n".printf(body_type_text.buffer.text));
+                this.body = body_text_buff.text;
+            });
             this.set_size_request(300,-1);
 
-            this.add(urlbar);
+            //this.add(urlbar);
             this.add(tab_box);
             this.add(stack);
         }

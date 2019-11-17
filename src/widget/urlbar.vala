@@ -48,6 +48,7 @@ namespace Rehat.Widget {
             // URL Entry
             url_entry = new Gtk.Entry();
             url_entry.hexpand = true;
+            url_entry.text = "https://api.github.com/users/showcheap";
             //url_entry.margin_end = 4;
             //url_entry.margin_start = 4;
             url_entry.placeholder_text = "http://example.com/api";
@@ -107,9 +108,6 @@ namespace Rehat.Widget {
         public Soup.Message get_message() {
             var message = new Soup.Message(this.method, this.url);
 
-            if(this.method == "POST" || this.method == "PUT" || this.method == "PATCH") {
-                message.set_request("application/json",Soup.MemoryUse.COPY, this.popover.body.data);
-            }
             return message;
         }
 

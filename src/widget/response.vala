@@ -20,6 +20,7 @@
 
 namespace Rehat.Widget {
     public class Response : Gtk.Box {
+        public Gtk.SourceView text;
         public Response()
         {
             Object(
@@ -29,7 +30,7 @@ namespace Rehat.Widget {
         }
         construct {
             // Text Area
-            var text = new Gtk.SourceView();
+            text = new Gtk.SourceView();
             text.set_wrap_mode(Gtk.WrapMode.WORD);
             text.auto_indent = true;
             text.highlight_current_line = false;

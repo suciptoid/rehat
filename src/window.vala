@@ -40,13 +40,12 @@ namespace Rehat {
 
 		    // Header
 		    var headerbar = new Widget.Header();
+		    headerbar.title = "Rehat";
 		    this.set_titlebar(headerbar);
 		    headerbar.pack_end(new Gtk.Button.from_icon_name("open-menu-symbolic", Gtk.IconSize.BUTTON));
 		    headerbar.pack_start(new Gtk.Button.from_icon_name("list-add-symbolic", Gtk.IconSize.BUTTON));
 
-		    // Req/Res Tab switcher
-		    var tab_switch = new Gtk.StackSwitcher();
-		    headerbar.custom_title = tab_switch;
+            urlbar = new Widget.UrlBar();
 
             // Window
             this.default_width = 1000;
@@ -55,55 +54,59 @@ namespace Rehat {
 
 		    // Content Main
 		    var main_pane = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
+		    var content_pane = new Gtk.Paned(Gtk.Orientation.VERTICAL);
             var main_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL,0);
 
             // Sidebar
             var sidebar = new Gtk.Box(Gtk.Orientation.VERTICAL,0);
             sidebar.add(new Gtk.Label("Sidebar"));
-            sidebar.set_size_request(300,-1);
+            sidebar.set_size_request(225,-1);
 
             // Stack Content
             content_stack = new Gtk.Stack();
-            tab_switch.stack = content_stack;
 
             // Tab Request
             request = new Widget.Request();
-            content_stack.add_titled(request,"request","Request");
 
             // Tab Response
             response = new Widget.Response();
-            content_stack.add_titled(response,"response","Response");
-
-
-            // Text Area
-            //textarea = new Gtk.SourceView();
-            //textarea.set_wrap_mode(Gtk.WrapMode.WORD);
-            //textarea.auto_indent = true;
-            //textarea.highlight_current_line = false;
-            //textarea.editable = false;
-
-            //var text_scrollbar = new Gtk.ScrolledWindow(null, null);
-            //text_scrollbar.margin = 8;
-            //text_scrollbar.add(textarea);
 
             //urlbar = new Widget.UrlBar();
-            request.urlbar.send.connect(() => {
+            urlbar.send.connect(() => {
                 this.do_request();
             });
 
             this.add(main_pane);
             main_pane.add1(sidebar);
-            main_pane.add2(main_box);
-            main_box.pack_end(content_stack);
+
+            content_pane.add1(request);
+            content_pane.add2(response);
+
+            var content_box = new Gtk.Box(Gtk.Orientation.VERTICAL,0);
+            content_box.add(urlbar);
+            content_box.add(content_pane);
+
+            //main_pane.add2(main_box);
+            main_pane.add2(content_box);
+            //main_box.pack_end(content_stack);
 		}
 
 		private void do_request() {
-            var url = request.urlbar.url;
-            var method = request.urlbar.method;
+            var url = urlbar.url;
+            var method =
+
+            urlbar.method;
 
             print("%s : %s\n", method, url);
 
-            var message = request.urlbar.get_message();//new Soup.Message(method,url);
+            var message = urlbar.get_message();
+            if(method == "POST" || method == "PUT" || method == "PATCH") {
+                message.set_request(
+                    "application/json",
+                    Soup.MemoryUse.COPY,
+                    this.request.body.data
+                );
+            }
             this.session.queue_message(message, (ses,msg) => {
                 var body = (string) msg.response_body.flatten().data;
                 print("Response\n%s\n",body);
@@ -151,6 +154,8 @@ namespace Rehat {
 		        } else {
 		            buffer.text = body;
 		        }
+
+		        this.response.text.buffer = buffer;
             });
 		}
 	}
