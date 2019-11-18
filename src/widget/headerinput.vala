@@ -20,8 +20,8 @@
 
 namespace Rehat.Widget {
     public class HeaderInput : Gtk.Box {
-        Gtk.Entry entry;
-        Gtk.Entry val;
+        public Gtk.Entry entry;
+        public Gtk.Entry val;
         Gtk.Button delete_button;
 
         public uint id { get; set; }
