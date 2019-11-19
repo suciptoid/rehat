@@ -49,11 +49,14 @@ namespace Rehat.Widget {
             delete_button.get_style_context().add_class("destructive-action");
             delete_button.clicked.connect(() => {
                 this.delete_header();
+                this.destroy();
             });
 
             this.add(entry);
             this.add(val);
             this.add(delete_button);
+
+
         }
 
         public string get_header() {

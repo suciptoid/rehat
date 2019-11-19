@@ -21,8 +21,8 @@
 namespace Rehat.Widget {
     public class Request : Gtk.Box {
         public string body;
-        HashTable<string,string> headers;
 
+        private Gtk.Box header_box;
         public Request(){
             Object(
                 orientation: Gtk.Orientation.VERTICAL,
@@ -31,7 +31,6 @@ namespace Rehat.Widget {
         }
 
         construct {
-            headers = new HashTable<string,string>(str_hash, str_equal);
             // Body Stack
             var stack = new Gtk.Stack();
             var stack_scroll = new Gtk.ScrolledWindow(null,null);
@@ -74,6 +73,7 @@ namespace Rehat.Widget {
             // Header Tab
             var tab_header = new Gtk.Box(Gtk.Orientation.VERTICAL,0);
             stack.add_titled(tab_header, "tab_header","Header");
+            this.create_header_form(tab_header);
 
             // Tab Switcher
             var switcher = new Gtk.StackSwitcher();
@@ -97,8 +97,6 @@ namespace Rehat.Widget {
             switcher_box.hexpand = true;
             switcher_box.halign = Gtk.Align.CENTER;
 
-            // Init Header Form
-            this.create_header_form(tab_header);
 
             this.set_size_request(-1,200);
             this.add(switcher);
@@ -106,43 +104,46 @@ namespace Rehat.Widget {
         }
 
         private void create_header_form(Gtk.Box parent) {
-            headers.insert("Accept","application/json");
-            headers.insert("X-Rehat","v1.0");
+            parent.margin_start = 16;
+            parent.margin_end = 16;
 
-            parent.margin_start = 8;
-            parent.margin_end = 8;
-
-            var header_box = new Gtk.Box(Gtk.Orientation.VERTICAL,0);
+            header_box = new Gtk.Box(Gtk.Orientation.VERTICAL,0);
             parent.add(header_box);
 
-            this.refresh_header_form(header_box);
             var add_btn = new Gtk.Button.with_label("Add Header");
             parent.add(add_btn);
+
+            // TODO: Remove after has dynamic content
+            this.add_header("Content-Type","application/json");
+
             add_btn.clicked.connect(() => {
-                print("Add Header\n");
-                headers.insert("Content-Type","application/json");
-                this.refresh_header_form(header_box);
+                this.add_header("","");
             });
 
         }
 
-        private void refresh_header_form(Gtk.Box parent) {
-            print("Length %s\n".printf(this.headers.size().to_string()));
-            parent.foreach((child) => {
-                child.destroy();
+        public Soup.MessageHeaders get_headers() {
+            var headers = new Soup.MessageHeaders(Soup.MessageHeadersType.REQUEST);
+            header_box.foreach((h) => {
+                var header = h as Widget.HeaderInput;
+                if (header.entry.text != "" && header.val.text != "") {
+                    headers.append(header.entry.text,header.val.text);
+                    print("Add to header: %s => %s\n".printf(header.entry.text,header.val.text));
+                }
             });
-            this.headers.foreach((k,v) => {
-                print("Add input: %s\n".printf(k));
-                var header_input = new Widget.HeaderInput();
-                header_input.margin_bottom = 4;
-                header_input.entry.text = k;
-                header_input.val.text = v;
-                header_input.delete_header.connect(() => {
-                    header_input.destroy();
-                });
-                header_input.show();
-                parent.add(header_input);
-            });
+
+            return headers;
         }
+
+        public void add_header(string key, string val) {
+            var header = new Widget.HeaderInput();
+            header.entry.text = key;
+            header.val.text = val;
+            header.margin_bottom = 4;
+            header_box.add(header);
+            header_box.show_all();
+        }
+
+
     }
 }

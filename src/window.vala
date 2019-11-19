@@ -93,9 +93,7 @@ namespace Rehat {
 
 		private void do_request() {
             var url = urlbar.url;
-            var method =
-
-            urlbar.method;
+            var method = urlbar.method;
 
             print("%s : %s\n", method, url);
 
@@ -107,6 +105,12 @@ namespace Rehat {
                     this.request.body.data
                 );
             }
+            // Headers
+            var headers = request.get_headers();
+            headers.foreach((k,v) => {
+                message.request_headers.append(k,v);
+            });
+            //message.request_headers = headers;
             this.session.queue_message(message, (ses,msg) => {
                 var body = (string) msg.response_body.flatten().data;
                 print("Response\n%s\n",body);
