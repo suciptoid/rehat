@@ -22,9 +22,7 @@ namespace Rehat.Widget {
     public class UrlBar : Gtk.Box {
         Gtk.Entry url_entry;
         Gtk.Button send_button;
-        Gtk.ToggleButton pop_button;
         Widget.DropDown method_dropdown;
-        Widget.RequestForm popover;
 
         // Signals
         public signal void send();
@@ -48,33 +46,10 @@ namespace Rehat.Widget {
             // URL Entry
             url_entry = new Gtk.Entry();
             url_entry.hexpand = true;
-            //url_entry.margin_end = 4;
-            //url_entry.margin_start = 4;
+            url_entry.text = "https://api.github.com/users/showcheap";
             url_entry.placeholder_text = "http://example.com/api";
             url_entry.changed.connect(() => {
-                print("URL Entry changed %s\n", url_entry.text);
                 this.url = url_entry.text;
-            });
-
-            // Request Pop Button
-            pop_button = new Gtk.ToggleButton();//.from_icon_name("open-menu-symbolic");
-            pop_button.add(new Gtk.Image.from_icon_name("open-menu-symbolic", Gtk.IconSize.BUTTON));
-            pop_button.margin_start = 4;
-            pop_button.clicked.connect(() => {
-                if(pop_button.active) {
-                    popover.show_all();
-                    popover.popup();
-                    return;
-                }
-                popover.popdown();
-            });
-
-            // Popover menu
-            popover = new Widget.RequestForm();
-            popover.set_relative_to(pop_button);
-            popover.closed.connect(() => {
-                print("Popover closed\n");
-                pop_button.active = false;
             });
 
             // HTTP Method Dropdown
@@ -91,7 +66,6 @@ namespace Rehat.Widget {
 
             this.margin = 8;
             this.add(method_dropdown);
-            //this.add(pop_button);
             this.add(url_entry);
             this.add(send_button);
 
@@ -107,9 +81,6 @@ namespace Rehat.Widget {
         public Soup.Message get_message() {
             var message = new Soup.Message(this.method, this.url);
 
-            if(this.method == "POST" || this.method == "PUT" || this.method == "PATCH") {
-                message.set_request("application/json",Soup.MemoryUse.COPY, this.popover.body.data);
-            }
             return message;
         }
 

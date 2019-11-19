@@ -20,8 +20,8 @@
 
 namespace Rehat.Widget {
     public class HeaderInput : Gtk.Box {
-        Gtk.Entry entry;
-        Gtk.Entry val;
+        public Gtk.Entry entry;
+        public Gtk.Entry val;
         Gtk.Button delete_button;
 
         public uint id { get; set; }
@@ -49,11 +49,14 @@ namespace Rehat.Widget {
             delete_button.get_style_context().add_class("destructive-action");
             delete_button.clicked.connect(() => {
                 this.delete_header();
+                this.destroy();
             });
 
             this.add(entry);
             this.add(val);
             this.add(delete_button);
+
+
         }
 
         public string get_header() {
