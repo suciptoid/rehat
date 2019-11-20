@@ -41,11 +41,15 @@ namespace Rehat {
 		    // Header
 		    var headerbar = new Widget.Header();
 		    headerbar.title = "Rehat";
+
 		    this.set_titlebar(headerbar);
 		    headerbar.pack_end(new Gtk.Button.from_icon_name("open-menu-symbolic", Gtk.IconSize.BUTTON));
 		    headerbar.pack_start(new Gtk.Button.from_icon_name("list-add-symbolic", Gtk.IconSize.BUTTON));
 
             urlbar = new Widget.UrlBar();
+            urlbar.send.connect(() => {
+                this.do_request();
+            });
 
             // Window
             this.default_width = 1000;
@@ -54,6 +58,7 @@ namespace Rehat {
 
 		    // Content Main
 		    var main_pane = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
+		    //main_pane.wide_handle = true;
 		    var content_pane = new Gtk.Paned(Gtk.Orientation.VERTICAL);
             var main_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL,0);
 
@@ -61,6 +66,7 @@ namespace Rehat {
             var sidebar = new Gtk.Box(Gtk.Orientation.VERTICAL,0);
             sidebar.add(new Gtk.Label("Sidebar"));
             sidebar.set_size_request(225,-1);
+            sidebar.visible = false;
 
             // Stack Content
             content_stack = new Gtk.Stack();
@@ -70,11 +76,6 @@ namespace Rehat {
 
             // Tab Response
             response = new Widget.Response();
-
-            //urlbar = new Widget.UrlBar();
-            urlbar.send.connect(() => {
-                this.do_request();
-            });
 
             this.add(main_pane);
             main_pane.add1(sidebar);
@@ -86,9 +87,7 @@ namespace Rehat {
             content_box.add(urlbar);
             content_box.add(content_pane);
 
-            //main_pane.add2(main_box);
             main_pane.add2(content_box);
-            //main_box.pack_end(content_stack);
 		}
 
 		private void do_request() {

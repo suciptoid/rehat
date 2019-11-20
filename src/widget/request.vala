@@ -38,11 +38,12 @@ namespace Rehat.Widget {
             stack.vexpand = true;
             //stack.margin = 8;
 
+
             // Body Type Text / JSON
             var body_type_text = new Gtk.SourceView();
             body_type_text.set_wrap_mode(Gtk.WrapMode.WORD);
             body_type_text.auto_indent = true;
-            body_type_text.show_line_numbers = true;
+            //body_type_text.show_line_numbers = true;
 
             //body_stack_content.add(body_type_text);
             stack.add_titled(body_type_text,"body_text","Body");
@@ -81,31 +82,51 @@ namespace Rehat.Widget {
             switcher.margin_bottom = 8;
             switcher.halign = Gtk.Align.CENTER;
 
+            // Body Type
             var body_type = new Gtk.ComboBoxText();
             body_type.append_text("JSON");
             body_type.append_text("Form Data");
             body_type.set_active(0);
             body_type.halign = Gtk.Align.START;
-            body_type.margin_end = 8;
+            body_type.margin_bottom = 8;
+            var body_type_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL,0);
+            body_type_box.add(body_type);
 
 
             // Switcher Box
             var switcher_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL,0);
-            switcher_box.add(body_type);
-            //switcher_box.add(switcher);
             switcher_box.margin_bottom = 8;
             switcher_box.hexpand = true;
-            switcher_box.halign = Gtk.Align.CENTER;
+            switcher_box.margin_start = 8;
+            switcher_box.margin_end = 8;
+            switcher_box.homogeneous = true;
 
+            switcher_box.add(body_type_box);
+            switcher_box.add(switcher);
+            switcher_box.add(new Gtk.Box(Gtk.Orientation.HORIZONTAL,0)); // Add empty space
+
+            stack.notify.connect((s,p) => {
+                if (p.name == "visible-child-name") {
+                    if(stack.visible_child_name == "body_text"){
+                        body_type.set_visible(true);
+                    } else {
+                        body_type.set_visible(false);
+                    }
+                }
+            });
 
             this.set_size_request(-1,200);
-            this.add(switcher);
+
+            //var switcher_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL,0);
+            //switcher_box.add(switcher);
+            //this.add(switcher);
+            this.add(switcher_box);
             this.add(stack_scroll);
         }
 
         private void create_header_form(Gtk.Box parent) {
-            parent.margin_start = 16;
-            parent.margin_end = 16;
+            parent.margin_start = 8;
+            parent.margin_end = 8;
 
             header_box = new Gtk.Box(Gtk.Orientation.VERTICAL,0);
             parent.add(header_box);
