@@ -6,6 +6,7 @@ rehat_sources = [
   'widget/urlbar.vala',
   'widget/requestform.vala',
   'widget/headerinput.vala',
+  'widget/forminput.vala',
   'widget/request.vala',
   'widget/response.vala'
 ]

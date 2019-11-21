@@ -66,7 +66,11 @@ namespace Rehat {
             var sidebar = new Gtk.Box(Gtk.Orientation.VERTICAL,0);
             sidebar.add(new Gtk.Label("Sidebar"));
             sidebar.set_size_request(225,-1);
-            sidebar.visible = false;
+
+            main_pane.show.connect(() => {
+                // TODO: hide until sidebar is usable
+                sidebar.set_visible(false);
+            });
 
             // Stack Content
             content_stack = new Gtk.Stack();
@@ -88,6 +92,7 @@ namespace Rehat {
             content_box.add(content_pane);
 
             main_pane.add2(content_box);
+
 		}
 
 		private void do_request() {
@@ -97,26 +102,30 @@ namespace Rehat {
             print("%s : %s\n", method, url);
 
             var message = urlbar.get_message();
-            if(method == "POST" || method == "PUT" || method == "PATCH") {
-                message.set_request(
-                    "application/json",
-                    Soup.MemoryUse.COPY,
-                    this.request.body.data
-                );
-            }
+
             // Headers
             var headers = request.get_headers();
             headers.foreach((k,v) => {
                 message.request_headers.append(k,v);
             });
+
+            // Body
+            if (request.get_body() != null) {
+                message.set_request(
+                    request.request_body_type, // TODO: use from header form if defined Content-Type
+                    Soup.MemoryUse.COPY,
+                    request.get_body().data
+                );
+            }
+
             //message.request_headers = headers;
             this.session.queue_message(message, (ses,msg) => {
                 var body = (string) msg.response_body.flatten().data;
-                print("Response\n%s\n",body);
+                //print("Response\n%s\n",body);
 
-                print("Headers:\n");
+                //print("Headers:\n");
 		        msg.response_headers.foreach((name,val) => {
-		            print("%s: %s\n", name,val);
+		            //print("%s: %s\n", name,val);
 		        });
 
                 var lang_mgr = new Gtk.SourceLanguageManager();

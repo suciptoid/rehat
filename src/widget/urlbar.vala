@@ -46,7 +46,7 @@ namespace Rehat.Widget {
             // URL Entry
             url_entry = new Gtk.Entry();
             url_entry.hexpand = true;
-            url_entry.text = "https://api.github.com/users/showcheap";
+            url_entry.text = "http://localhost:3000";
             url_entry.placeholder_text = "http://example.com/api";
             url_entry.changed.connect(() => {
                 this.url = url_entry.text;
