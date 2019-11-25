@@ -22,10 +22,12 @@ namespace Rehat.Widget {
     public class UrlBar : Gtk.Box {
         Gtk.Entry url_entry;
         Gtk.Button send_button;
+        Gtk.Button stop_button;
         Widget.DropDown method_dropdown;
 
         // Signals
         public signal void send();
+        public signal void stop();
 
         // Properties
         public string method { get; set; }
@@ -64,10 +66,22 @@ namespace Rehat.Widget {
             send_button.get_style_context().add_class("suggested-action"); // Make it blue
             send_button.clicked.connect(this.on_send_click);
 
+            // Stop Button
+            stop_button = new Gtk.Button.with_label("Stop");
+            stop_button.get_style_context().add_class("destructive-action"); // Make it blue
+            stop_button.clicked.connect(() => {
+                this.stop();
+            });
+
             this.margin = 8;
             this.add(method_dropdown);
             this.add(url_entry);
             this.add(send_button);
+            this.add(stop_button);
+
+            this.show.connect(() => {
+                stop_button.set_visible(false);
+            });
 
             this.url = url_entry.text;
             this.method = method_dropdown.get_method();
@@ -82,6 +96,16 @@ namespace Rehat.Widget {
             var message = new Soup.Message(this.method, this.url);
 
             return message;
+        }
+
+        public void set_loading(bool loading) {
+            if (loading) {
+                stop_button.set_visible(true);
+                send_button.set_visible(false);
+            } else {
+                send_button.set_visible(true);
+                stop_button.set_visible(false);
+            }
         }
 
     }

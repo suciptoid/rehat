@@ -33,6 +33,7 @@ namespace Rehat {
 
 			this.session = new Soup.Session();
 			this.session.user_agent = "Rehat/1.0";
+			this.session.timeout = 20;
 
 		}
 
@@ -93,6 +94,12 @@ namespace Rehat {
 
             main_pane.add2(content_box);
 
+            // Abort
+            this.urlbar.stop.connect(() => {
+                this.session.abort();
+                this.urlbar.set_loading(false);
+            });
+
 		}
 
 		private void do_request() {
@@ -102,6 +109,12 @@ namespace Rehat {
             print("%s : %s\n", method, url);
 
             var message = urlbar.get_message();
+            urlbar.set_loading(true);
+
+            message.finished.connect(() => {
+                print("Message finished\n");
+                urlbar.set_loading(false);
+            });
 
             // Headers
             var headers = request.get_headers();
@@ -121,9 +134,7 @@ namespace Rehat {
             //message.request_headers = headers;
             this.session.queue_message(message, (ses,msg) => {
                 var body = (string) msg.response_body.flatten().data;
-                //print("Response\n%s\n",body);
 
-                //print("Headers:\n");
 		        msg.response_headers.foreach((name,val) => {
 		            //print("%s: %s\n", name,val);
 		        });
