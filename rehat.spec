@@ -1,5 +1,5 @@
 Name:           rehat
-Version:        0.1.0
+Version:        0.2.0
 Release:        1%{?dist}
 Summary:        Simple GTK Rest Client
 
@@ -32,6 +32,12 @@ GTK REST Client
 
 
 %changelog
+* Tue Nov 25 2019 Sucipto <hi@sucipto.id>
+- Able to send request with some method
+- Request form data
+- Request raw / json
+- UI Redesign
+    
 * Mon Oct 16 2019 Sucipto <hi@sucipto.id>
 - Add spec file
 
